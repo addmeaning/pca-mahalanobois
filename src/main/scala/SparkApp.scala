@@ -1,24 +1,15 @@
-import breeze.linalg.DenseVector
-import breeze.linalg.inv
+import breeze.linalg.{DenseVector, inv}
 import org.apache.spark.ml.Pipeline
-import org.apache.spark.ml.PipelineStage
-import org.apache.spark.ml.feature.PCA
-import org.apache.spark.ml.feature.StandardScaler
-import org.apache.spark.ml.feature.VectorAssembler
-import org.apache.spark.ml.linalg.Matrix
-import org.apache.spark.ml.param.ParamMap
+import org.apache.spark.ml.feature.{PCA, StandardScaler, VectorAssembler}
+import org.apache.spark.ml.linalg.{Matrix, Vector}
 import org.apache.spark.ml.stat.Correlation
-import org.apache.spark.mllib.linalg.Vector
-import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.Row
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.types.StructType
 
 object SparkApp extends App {
   val session = SparkSession.builder()
     .appName("spark-app").master("local[*]").getOrCreate()
-
+  session.sparkContext.setLogLevel("ERROR")
   import session.implicits._
 
   val df = Seq(
@@ -53,7 +44,7 @@ object SparkApp extends App {
     df.withColumn("mahalanobois", mahalanobois(df(inputCol)))
   }
 
-  withMahalanobois(pcaDF, "pca-features").show
+  val withMahalanobois: DataFrame = withMahalanobois(pcaDF, "pca-features")
 
   session.close()
 }
